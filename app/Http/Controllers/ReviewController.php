@@ -3,22 +3,22 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
+use App\Models\Reviews;
 use Illuminate\Support\Facades\Log;
 
-class UserController extends Controller
+class ReviewController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $Users = User::all();
+        $Reviews = Reviews::all();
 
         return response()->json([
             'status' => 200,
             'message' => 'Users retrieved successfully.',
-            'data' => $Users
+            'data' => $Reviews
         ], 200);
     }
 
@@ -28,22 +28,22 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255',
-            'email' => 'required|string|max:255',
-            'password' => 'required|string|max:255',
-            'phone' => 'required|string|max:255',
+            'book_id'    => 'required|integer',
+            'user_id'    => 'required|integer',
+            'rating'     => 'required|integer|min:1|max:5', 
+            'comment'    => 'required|string|max:500',  
         ]);
+        
         
         Log::info('Request data:', $request->all());
         
         try {
-            $User = User::create($request->all());
+            $Reviews = Reviews::create($request->all());
         
             return response()->json([
                 'status' => 201,
                 'message' => 'User created successfully.',
-                'data' => $User
+                'data' => $Reviews
             ], 201);
         } catch (\Exception $e) {
             Log::error('Error creating user:', ['error' => $e->getMessage()]);
@@ -61,9 +61,9 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        $User = User::find($id);
+        $Reviews = Reviews::find($id);
 
-        if (!$User) {
+        if (!$Reviews) {
             return response()->json([
                 'status' => 404,
                 'message' => 'User not found.',
@@ -73,7 +73,7 @@ class UserController extends Controller
         return response()->json([
             'status' => 200,
             'message' => 'User retrieved successfully.',
-            'data' => $User
+            'data' => $Reviews
         ], 200);        
     }
 
@@ -82,23 +82,27 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $User = User::find($id);
+        $Reviews = Reviews::find($id);
 
-        if (!$User) {
+        if (!$Reviews) {
             return response()->json([
                 'status' => 404,
-                'message' => 'User not found.',
+                'message' => 'Category not found.',
             ], 404);
         }
 
-        $request->validate(['name' => 'required|string']);
-
-        $User->update($request->all());
+        $request->validate([
+            'book_id'    => 'required|integer',
+            'user_id'    => 'required|integer',
+            'rating'     => 'required|integer|min:1|max:5', 
+            'comment'    => 'required|string|max:500',
+        ]);
+        $Reviews->update($request->all());
 
         return response()->json([
             'status' => 200,
-            'message' => 'User updated successfully.',
-            'data' => $User
+            'message' => 'Category updated successfully.',
+            'data' => $Reviews
         ], 200);
     }
 
@@ -107,16 +111,16 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        $User = User::find($id);
+        $Reviews = Reviews::find($id);
 
-        if (!$User) {
+        if (!$Reviews) {
             return response()->json([
                 'status' => 404,
                 'message' => 'User not found.',
             ], 404);
         }
 
-        $User->delete();
+        $Reviews->delete();
 
         return response()->json([
             'status' => 200,
